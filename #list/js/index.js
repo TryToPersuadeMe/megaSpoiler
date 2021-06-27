@@ -5,9 +5,14 @@ class Accordion {
     this.time = 500;
     this.toggleStatusAttribute = props.toggleStatusAttribute;
 
+    /* так как спойлеров будет несколько, запускаем цикл */
     this.$wrapper.forEach((wrapper) => {
       this.handleClick(wrapper);
-      this.setupToggleDataset();
+
+      /* устанавливаем data атрибуты, необходимые для корректной работы. В будущем, это можно будет делать через backend */
+      this.setupToggleDataset(wrapper);
+
+      /* стилизуем последние элементы, у которых не вложенности */
       this.styleLastAccodrions(wrapper);
     });
   }
@@ -28,13 +33,15 @@ class Accordion {
       });
   }
 
-  setupToggleDataset() {
-    this.accordion = document.querySelectorAll(".accordion");
-    this.cell = document.querySelectorAll(".accordion__cell");
+  setupToggleDataset(wrapper) {
+    this.accordion = wrapper.querySelectorAll(".accordion");
+    this.cell = wrapper.querySelectorAll(".accordion__cell");
 
+    /* так как нам нужно установить атрибуты для обоих классов, чтобы не запускать цикл дважды, получим наибольший массив */
     this.biggerlength = Math.max(this.accordion.length, this.cell.length);
 
     for (let index = 0; index < this.biggerlength; index++) {
+      /* исключаем ошибки с отсутствием класса, нулевой элемент и элементы без вложенности */
       if (
         this.accordion[index] &&
         index != 0 &&
@@ -43,6 +50,7 @@ class Accordion {
         this.accordion[index].setAttribute(this.toggleStatusAttribute, "false");
       }
 
+      /* аналогично */
       if (
         this.cell[index] &&
         !this.cell[index].classList.contains("lastElement")
@@ -51,12 +59,16 @@ class Accordion {
     }
   }
 
-  closeAllOpenedLists(inner, parent, event) {
+  /* закрываем элементы на одном уровне вложенности с активным элементом */
+  closeAllOpenedLists(_, parent, event) {
+    /* получаем массив текущих активных элементов */
     this.$openedLists = event.currentTarget.querySelectorAll(
       `[${this.toggleStatusAttribute}="true"]`,
     );
+    /* сохраняем его */
     this.$prevElement = [].concat(...this.$openedLists);
 
+    /* находим всех соседей и скрываем их */
     if (this.$prevElement.length) {
       const siblings = (elem) => {
         // create an empty array
@@ -81,7 +93,6 @@ class Accordion {
         return siblings;
       };
 
-      // get all all siblings
       const nodes = siblings(parent);
       nodes.forEach((el) => {
         if (el.getAttribute(this.toggleStatusAttribute) === "true")
@@ -94,31 +105,43 @@ class Accordion {
     }
   }
 
+  /* отслеживаем состаяние для вкл/выкл при нажатии */
   toggle(event) {
+    /* находим родителя-ячейку у кликнутого элемента */
     this.$parent_cell = event.target.closest(`[${this.toggleStatusAttribute}]`);
+
+    /* отменяем функцию, если кликнули по элементу без вложенности */
     if (this.$parent_cell.classList.contains("lastElement")) return;
 
+    /* находим раскрывающийся список */
     this.$inner_cell = this.$parent_cell.querySelector(
       `[${this.toggleStatusAttribute}]`,
     );
 
+    /* toggle state */
     if (
       this.$parent_cell.getAttribute(this.toggleStatusAttribute) === "false"
     ) {
-      this.closeAllOpenedLists(this.$inner_cell, this.$parent_cell, event);
+      this.closeAllOpenedLists("", this.$parent_cell, event);
       this.activate(this.$inner_cell, event);
     } else {
       this.hide(this.$inner_cell, this.$parent_cell, event);
     }
   }
 
+  /* функция раскрытия. Сначала мы получаем необхоимую высоту, потом убираем display none, после чего задаем неограниченную высоту для адекватного ресайза страницы */
   activate(el, event) {
     this.$parent_cell.setAttribute(this.toggleStatusAttribute, "true");
     this.$parent_cell.classList.add("toggleArrow");
-    el.style.transition = `${this.time * 0.001}s ease`;
-    el.style.overflow = "hidden";
+
     el.classList.add("active");
-    el.style.maxHeight = 0;
+
+    Object.assign(el.style, {
+      transition: `${this.time * 0.001}s ease`,
+      overflow: "hidden",
+      maxHeight: "0px",
+    });
+
     const promise = new Promise((resolve, reject) => {
       setTimeout(() => {
         el.style.maxHeight = el.scrollHeight + "px";
@@ -137,10 +160,10 @@ class Accordion {
   }
 
   hide(el, parent = this.$parent_cell, event) {
-    el.style.maxHeight = el.scrollHeight + "px";
-    el.style.overflow = "hidden";
-
-    console.log(el, "el");
+    Object.assign(el.style, {
+      overflow: "hidden",
+      maxHeight: el.scrollHeight + "px",
+    });
 
     const promise = new Promise((resolve, reject) => {
       setTimeout(() => {
