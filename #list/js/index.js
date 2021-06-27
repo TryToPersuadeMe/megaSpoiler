@@ -51,22 +51,46 @@ class Accordion {
     }
   }
 
-  closeAllOpenedLists(event) {
+  closeAllOpenedLists(inner, parent, event) {
     this.$openedLists = event.currentTarget.querySelectorAll(
       `[${this.toggleStatusAttribute}="true"]`,
     );
-
-    console.log(this.$openedLists);
-
     this.$prevElement = [].concat(...this.$openedLists);
 
-    console.log(this.$openedLists);
+    if (this.$prevElement.length) {
+      const siblings = (elem) => {
+        // create an empty array
+        let siblings = [];
 
-    if (this.$prevElement[0]) {
-      this.hide(
-        this.$prevElement[0].querySelector(`[${this.toggleStatusAttribute}]`),
-        this.$prevElement[0],
-      );
+        // if no parent, return empty list
+        if (!elem.parentNode) {
+          return siblings;
+        }
+
+        // first child of the parent node
+        let sibling = elem.parentNode.firstElementChild;
+
+        // loop through next siblings until `null`
+        do {
+          // push sibling to array
+          if (sibling != elem) {
+            siblings.push(sibling);
+          }
+        } while ((sibling = sibling.nextElementSibling));
+
+        return siblings;
+      };
+
+      // get all all siblings
+      const nodes = siblings(parent);
+      nodes.forEach((el) => {
+        if (el.getAttribute(this.toggleStatusAttribute) === "true")
+          this.hide(
+            el.querySelector(`[${this.toggleStatusAttribute}]`),
+            el,
+            event,
+          );
+      });
     }
   }
 
@@ -81,7 +105,7 @@ class Accordion {
     if (
       this.$parent_cell.getAttribute(this.toggleStatusAttribute) === "false"
     ) {
-      this.closeAllOpenedLists(event);
+      this.closeAllOpenedLists(this.$inner_cell, this.$parent_cell, event);
       this.activate(this.$inner_cell, event);
     } else {
       this.hide(this.$inner_cell, this.$parent_cell, event);
@@ -95,7 +119,6 @@ class Accordion {
     el.style.overflow = "hidden";
     el.classList.add("active");
     el.style.maxHeight = 0;
-
     const promise = new Promise((resolve, reject) => {
       setTimeout(() => {
         el.style.maxHeight = el.scrollHeight + "px";
@@ -116,6 +139,8 @@ class Accordion {
   hide(el, parent = this.$parent_cell, event) {
     el.style.maxHeight = el.scrollHeight + "px";
     el.style.overflow = "hidden";
+
+    console.log(el, "el");
 
     const promise = new Promise((resolve, reject) => {
       setTimeout(() => {
