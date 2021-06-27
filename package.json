@@ -29,6 +29,7 @@
     "gulp-webpcss": "^1.1.1"
   },
   "dependencies": {
+    "jquery": "^3.6.0",
     "save-dev": "0.0.1-security"
   }
 }

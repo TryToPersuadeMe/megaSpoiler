@@ -1,9 +1,11 @@
 class Accordion {
   constructor(props) {
     this.$wrapper = document.querySelectorAll(props.parent);
+    // время анимации у списков
+    this.time = 500;
+    this.toggleStatusAttribute = props.toggleStatusAttribute;
 
     this.$wrapper.forEach((wrapper) => {
-      this.toggleStatusAttribute = props.toggleStatusAttribute;
       this.handleClick(wrapper);
       this.setupToggleDataset();
       this.styleLastAccodrions(wrapper);
@@ -11,9 +13,7 @@ class Accordion {
   }
 
   handleClick(wrapper) {
-    wrapper.addEventListener("click", (event) => {
-      this.toggle(event);
-    });
+    wrapper.addEventListener("click", (event) => this.toggle(event));
   }
 
   styleLastAccodrions(wrapper) {
@@ -55,15 +55,12 @@ class Accordion {
     this.$openedLists = event.currentTarget.querySelectorAll(
       `[${this.toggleStatusAttribute}="true"]`,
     );
+
     this.$prevElement = [].concat(...this.$openedLists);
 
-    console.log(this.$prevElement[0]);
+    console.log(this.$openedLists);
 
-    if (
-      this.$prevElement[0] &&
-      this.$prevElement[0].closest("[parent='true']") &&
-      this.$prevElement[0].closest(`[${this.toggleStatusAttribute}="false]`)
-    ) {
+    if (this.$prevElement[0]) {
       this.hide(
         this.$prevElement[0].querySelector(`[${this.toggleStatusAttribute}]`),
         this.$prevElement[0],
@@ -82,26 +79,58 @@ class Accordion {
     if (
       this.$parent_cell.getAttribute(this.toggleStatusAttribute) === "false"
     ) {
-      this.closeAllOpenedLists(event);
-      this.activate(this.$inner_cell);
+      // this.closeAllOpenedLists(event);
+      this.activate(this.$inner_cell, event);
     } else {
-      this.hide(this.$inner_cell);
+      this.hide(this.$inner_cell, this.$parent_cell, event);
     }
   }
 
-  activate(el) {
+  activate(el, event) {
     this.$parent_cell.setAttribute(this.toggleStatusAttribute, "true");
-    this.$parent_cell.setAttribute("parent", "true");
     this.$parent_cell.classList.add("toggleArrow");
-    el.style.maxHeight = el.scrollHeight + "px";
+    el.style.transition = `${this.time * 0.001}s ease`;
     el.classList.add("active");
+    el.style.maxHeight = 0;
+
+    const promise = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        el.style.maxHeight = el.scrollHeight + "px";
+        resolve(el);
+      }, 0);
+    });
+
+    promise.then((el) => {
+      setTimeout(() => {
+        el.style.removeProperty("max-height");
+        event.stopPropagation();
+      }, this.time);
+    });
   }
 
-  hide(el, parent = this.$parent_cell) {
-    el.style.maxHeight = 0;
-    el.classList.remove("active");
-    parent.setAttribute(this.toggleStatusAttribute, "false");
-    parent.classList.remove("toggleArrow");
+  hide(el, parent = this.$parent_cell, event) {
+    el.style.maxHeight = el.scrollHeight + "px";
+
+    const promise = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        el.style.maxHeight = "0";
+        resolve(el);
+      }, 0);
+    });
+
+    setTimeout(() => {
+      parent.setAttribute(this.toggleStatusAttribute, "false");
+      parent.classList.remove("toggleArrow");
+    }, 50);
+
+    promise.then((el) => {
+      setTimeout(() => {
+        parent.setAttribute(this.toggleStatusAttribute, "false");
+        parent.classList.remove("toggleArrow");
+        el.classList.remove("active");
+        event.stopPropagation();
+      }, this.time);
+    });
   }
 }
 

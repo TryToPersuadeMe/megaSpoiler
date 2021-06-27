@@ -8,23 +8,61 @@
 @import "./_base/reset.scss";
 
 $side-pagging: 25px;
+$top-padding: 10px;
+
+$noteIcon-parameters: 8px;
 
 body {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
   background: #e5e5e5;
-  max-height: 100vh;
-  overflow: hidden;
+}
+
+.containerSpoiler {
+  gap: 20px;
+  // border: 1px solid #000;
+  // display: grid;
+  // grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+}
+
+.dummy {
+  width: 100%;
+  height: 300px;
+  background: #000;
+  color: white;
+  font-size: 60px;
 }
 
 .spoiler {
+  // clear bootstrap styles
+  dl,
+  ol,
+  ul {
+    margin-top: 0;
+    margin-bottom: 0rem;
+    padding: 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+  }
+  p {
+    margin: 0;
+  }
+  // clear bootstrap styles end
+
   max-width: 380px;
   width: 100%;
-  font-family: "Open Sans", sans-serif;
+  // font-family: "Open Sans", sans-serif;
+  font-family: "Fira Sans", sans-serif;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
-
+  color: black;
   .lastElement {
     .cell {
       &__container {
@@ -40,14 +78,14 @@ body {
   &__title {
     font-size: 17px;
     border-radius: inherit;
-    font-weight: 700;
+    font-weight: 600;
     padding: 12px $side-pagging;
     border-bottom: 1px solid #d3d3d3;
   }
 
   &__title,
   &__summary {
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.161);
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.161);
     border: 1px solid #d8d8d8;
     background-color: white;
   }
@@ -67,7 +105,7 @@ body {
 
   &__title {
     font-size: 24px;
-    font-weight: 700;
+    font-weight: 600;
   }
 
   &__percents {
@@ -84,27 +122,35 @@ body {
 
 .accordion {
   background-color: transparent;
-  transition: 0.2s ease-in-out;
+  transition: 0.4s ease-in-out;
 
   .toggleArrow {
-    & > .cell__container::before {
-      transform: translateY(-50%) rotate(180deg);
+    & > .cell__container {
+      &::before {
+        transform: translate(-50%,-50%)rotate(0deg);
+      }
     }
   }
+
   &__cell {
     margin-left: 15px;
-
     & .accordion {
-      //   display: none;
-      opacity: 0;
-      max-height: 0px;
-      visibility: hidden;
+      display: none;
+      // opacity: 0;
+
+      // visibility: hidden;
+      // transition: 0.5s ease;
+      overflow: hidden;
+      padding: 0 6px;
     }
 
     & .active {
-      //   display: block;
-      visibility: visible;
-      opacity: 1;
+      display: block;
+      // visibility: visible;
+      // opacity: 1;
+      & > .accordion__cell:first-of-type > .cell__container {
+        box-shadow: inset 0px 3px 6px rgba(0, 0, 0, 0.161);
+      }
     }
   }
 }
@@ -113,12 +159,16 @@ body {
   &__container {
     display: grid;
     grid-template-columns: auto 1fr;
+    align-items: center;
     cursor: pointer;
     background-color: white;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.1);
     position: relative;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.161);
+    box-shadow: rgba(0, 0, 0, 0.161);
     border: 1px solid #dfdfdf;
-    padding: 10px $side-pagging;
+    border-top: 0px;
+    padding: $top-padding $side-pagging;
+    transition: 0.5s ease;
 
     &::before {
       background-image: url("../resources/icons/arrow.svg");
@@ -130,8 +180,8 @@ body {
       content: "";
       position: absolute;
       top: 50%;
-      left: 10px;
-      transform: translateY(-50%);
+      left: $side-pagging / 2;
+      transform: translate(-50%,-50%) rotate(-90deg);
       transition: 0.5s ease;
     }
   }
@@ -142,8 +192,10 @@ body {
   }
 
   &__photo {
-    width: 32px;
-    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    max-width: 32px;
+    max-height: 32px;
     border-radius: 100%;
     overflow: hidden;
     margin-right: 5px;
@@ -152,6 +204,61 @@ body {
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+  }
+
+  &__note {
+    position: absolute;
+    top: $top-padding;
+    right: $side-pagging - 5px;
+    transform: translateX(100%);
+    width: $noteIcon-parameters;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: $noteIcon-parameters;
+    border: 1px solid #707070;
+    font-size: 8px;
+    color: #ffffff;
+    background: #959595;
+    z-index: 3;
+    border-radius: 100%;
+    cursor: pointer;
+    &:hover {
+      .cell__hiddenText {
+        opacity: 1;
+        visibility: visible;
+      }
+    }
+  }
+
+  &__hiddenText {
+    border: 1px solid #707070;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s ease;
+    line-height: 1.2;
+    color: black;
+    font-size: 12px;
+    min-width: 20em;
+    position: absolute;
+    top: $noteIcon-parameters;
+    z-index: 5;
+    right: $noteIcon-parameters;
+    background-color: white;
+    padding: 10px;
+    border-radius: 5px;
+    &::before {
+      content: "";
+      top: -$noteIcon-parameters;
+      left: +$noteIcon-parameters;
+      display: block;
+      background-color: transparent;
+      opacity: 0;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
+      position: absolute;
     }
   }
 
@@ -164,17 +271,18 @@ body {
 
   &__name {
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 600;
   }
 
   &__position {
-    font-size: 8px;
+    font-size: 10px;
     color: #929292;
   }
 
   &__percents {
     font-size: 16px;
     justify-self: end;
+    font-weight: 600;
   }
 
   &__progressBar {
@@ -199,5 +307,27 @@ body {
     height: 100%;
     width: 0%;
     background: white;
+  }
+}
+
+@media (max-width: 460px) {
+  .summary {
+    &__percents {
+      font-size: 24px;
+    }
+    &__title {
+      font-size: 20px;
+    }
+  }
+
+  .cell {
+    &__percents {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+    }
   }
 }
