@@ -56,6 +56,8 @@ class Accordion {
       `[${this.toggleStatusAttribute}="true"]`,
     );
 
+    console.log(this.$openedLists);
+
     this.$prevElement = [].concat(...this.$openedLists);
 
     console.log(this.$openedLists);
@@ -79,7 +81,7 @@ class Accordion {
     if (
       this.$parent_cell.getAttribute(this.toggleStatusAttribute) === "false"
     ) {
-      // this.closeAllOpenedLists(event);
+      this.closeAllOpenedLists(event);
       this.activate(this.$inner_cell, event);
     } else {
       this.hide(this.$inner_cell, this.$parent_cell, event);
@@ -90,6 +92,7 @@ class Accordion {
     this.$parent_cell.setAttribute(this.toggleStatusAttribute, "true");
     this.$parent_cell.classList.add("toggleArrow");
     el.style.transition = `${this.time * 0.001}s ease`;
+    el.style.overflow = "hidden";
     el.classList.add("active");
     el.style.maxHeight = 0;
 
@@ -103,6 +106,8 @@ class Accordion {
     promise.then((el) => {
       setTimeout(() => {
         el.style.removeProperty("max-height");
+        el.style.removeProperty("overflow");
+
         event.stopPropagation();
       }, this.time);
     });
@@ -110,6 +115,7 @@ class Accordion {
 
   hide(el, parent = this.$parent_cell, event) {
     el.style.maxHeight = el.scrollHeight + "px";
+    el.style.overflow = "hidden";
 
     const promise = new Promise((resolve, reject) => {
       setTimeout(() => {

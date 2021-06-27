@@ -127,7 +127,7 @@ body {
   .toggleArrow {
     & > .cell__container {
       &::before {
-        transform: translate(-50%,-50%)rotate(0deg);
+        transform: translate(-50%, -50%) rotate(0deg);
       }
     }
   }
@@ -136,18 +136,15 @@ body {
     margin-left: 15px;
     & .accordion {
       display: none;
-      // opacity: 0;
+      // overflow: hidden;
 
-      // visibility: hidden;
-      // transition: 0.5s ease;
-      overflow: hidden;
+      // for box shadow visible
       padding: 0 6px;
+      margin: 0 -6px;
     }
 
     & .active {
       display: block;
-      // visibility: visible;
-      // opacity: 1;
       & > .accordion__cell:first-of-type > .cell__container {
         box-shadow: inset 0px 3px 6px rgba(0, 0, 0, 0.161);
       }
@@ -181,7 +178,7 @@ body {
       position: absolute;
       top: 50%;
       left: $side-pagging / 2;
-      transform: translate(-50%,-50%) rotate(-90deg);
+      transform: translate(-50%, -50%) rotate(-90deg);
       transition: 0.5s ease;
     }
   }
