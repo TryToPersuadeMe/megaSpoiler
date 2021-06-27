@@ -1,0 +1,17 @@
+// Sass Variables
+$body-html-px: 10px;
+
+$mainTextColor: black;
+$mainFontFamily: "Quicksand";
+
+/* exemple - .overlay {
+  z-index: z(overlay);
+}
+ */
+
+$z-layers: (
+  // bottomless-pit: -9999,
+  // header: 110,
+  // menu: 99,
+  // overlay: 90,
+);
