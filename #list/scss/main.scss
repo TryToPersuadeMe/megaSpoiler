@@ -124,6 +124,12 @@ $noteIcon-parameters: 8px;
 
     & .active {
       display: block;
+
+      & > .accordion__cell > .cell__container {
+        border-right: 0px;
+        border-left: 0px;
+      }
+
       & > .accordion__cell:first-of-type > .cell__container {
         box-shadow: inset 0px 3px 6px rgba(0, 0, 0, 0.161);
       }
